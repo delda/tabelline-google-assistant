@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '0.1.37';
+const version = '0.1.38';
 
 const Multiplication = {
     multiplier: 0,
@@ -17,7 +17,7 @@ process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
 function randomMultiplication() {
     let mult = Multiplication;
-    mult.multiplier = getRandomNumber(2, 3);
+    mult.multiplier = getRandomNumber(1, 4);
     mult.multiplicand = getRandomNumber(0, 9);
     mult.result = mult.multiplier * mult.multiplicand;
 
