@@ -16,7 +16,7 @@ action.startTest('sottrazioni - welcome', action => {
             expect(textToSpeech).to.have.lengthOf(1);
             expect(textToSpeech).to.not.be.empty;
             const splitText = textToSpeech[0].split('Ciao!');
-            const [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[1]);
+            let [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[1]);
             const result = multiplier * multiplicand;
 
             return action.send(result.toString());
@@ -24,5 +24,71 @@ action.startTest('sottrazioni - welcome', action => {
         .then(({ textToSpeech }) => {
             expect(textToSpeech[0]).to.have.string('Bravo!');
             expect(textToSpeech[0]).to.have.string('Quanto fa');
+        });
+});
+
+action.startTest('sottrazioni - smart questions', action => {
+    action.locale = 'it-IT';
+    let smartQuestion = 'down';
+    return action.startWith('il gioco delle moltiplicazioni')
+        .then(({ textToSpeech, suggestions }) => {
+            const splitText = textToSpeech[0].split('Ciao!');
+            let [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[1]);
+            const result = multiplier * multiplicand;
+            multiplicand = parseInt(multiplicand);
+            if (smartQuestion === 'down') {
+                expect(multiplicand).to.be.above(0);
+                expect(multiplicand).to.be.below(5);
+            } else {
+                expect(multiplicand).to.be.above(4);
+                expect(multiplicand).to.be.below(10);
+            }
+            smartQuestion = smartQuestion === 'up' ? 'down' : 'up';
+            return action.send(result.toString());
+        })
+        .then(({ textToSpeech }) => {
+            const splitText = textToSpeech[0].split('Bravo!');
+            let [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[1]);
+            const result = multiplier * multiplicand;
+            multiplicand = parseInt(multiplicand);
+            if (smartQuestion === 'down') {
+                expect(multiplicand).to.be.above(0);
+                expect(multiplicand).to.be.below(5);
+            } else {
+                expect(multiplicand).to.be.above(4);
+                expect(multiplicand).to.be.below(10);
+            }
+            smartQuestion = smartQuestion === 'up' ? 'down' : 'up';
+            return action.send(result.toString());
+        })
+        .then(({ textToSpeech }) => {
+            const splitText = textToSpeech[0].split('Bravo!');
+            let [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[1]);
+            const result = multiplier * multiplicand;
+            multiplicand = parseInt(multiplicand);
+            if (smartQuestion === 'down') {
+                expect(multiplicand).to.be.above(0);
+                expect(multiplicand).to.be.below(5);
+            } else {
+                expect(multiplicand).to.be.above(4);
+                expect(multiplicand).to.be.below(10);
+            }
+            smartQuestion = smartQuestion === 'up' ? 'down' : 'up';
+            return action.send(result.toString());
+        })
+        .then(({ textToSpeech }) => {
+            const splitText = textToSpeech[0].split('Bravo!');
+            let [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[1]);
+            const result = multiplier * multiplicand;
+            multiplicand = parseInt(multiplicand);
+            if (smartQuestion === 'down') {
+                expect(multiplicand).to.be.above(0);
+                expect(multiplicand).to.be.below(5);
+            } else {
+                expect(multiplicand).to.be.above(4);
+                expect(multiplicand).to.be.below(10);
+            }
+            smartQuestion = smartQuestion === 'up' ? 'down' : 'up';
+            return action.send(result.toString());
         });
 });
