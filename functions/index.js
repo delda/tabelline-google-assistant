@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '0.2.7';
+const version = '0.3.32';
 
 const Multiplication = {
     multiplier: 0,
@@ -15,12 +15,23 @@ const Multiplication = {
 
 const Parameters = {
     operation: null,
-    smartQuestion: 'down'
+    smartQuestion: 'down',
+    multiplications: Array.from({ length:10 }, () => (Array.from({ length:10 }, () => null)))
 };
 
-process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
+process.env.DEBUG = 'dialogflow:debug';
 
-function smartMultiplication(smartQuestion = 'down') {
+function addMultiplicationTable(operation, multiplications) {
+    multiplications[operation.multiplier-1][operation.multiplicand-1] = operation.result;
+
+    return multiplications;
+}
+
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomMultiplication(smartQuestion = 'down') {
     let mult = Multiplication;
     mult.multiplier = getRandomNumber(1, 4);
     if (smartQuestion === 'down') {
@@ -33,12 +44,17 @@ function smartMultiplication(smartQuestion = 'down') {
     return mult;
 }
 
-function getRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+function smartMultiplication(smartQuestion = 'down', multiplications) {
+    let min, max, result;
+    do {
+        result = randomMultiplication(smartQuestion);
+    } while (multiplications[result.multiplier-1][result.multiplicand-1] !== null);
+
+    return result;
 }
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
-    const agent = new WebhookClient({request, response});
+    const agent = new WebhookClient({ request, response });
     log && console.log('le-tabelline v' + version);
 
     function fallback(agent) {
@@ -53,7 +69,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         let data = agent.getContext('data');
         let guessedNumber = agent.parameters.guessedNumber;
         let speech = '';
-        log && console.log(data.parameters);
 
         if (guessedNumber === data.parameters.operation.result) {
             speech += 'Bravo! ';
@@ -67,8 +82,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 '. ';
         }
 
-        data.parameters.operation = smartMultiplication(data.parameters.smartQuestion);
         data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
+        data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
+        data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
         speech += 'Quanto fa ' +
             data.parameters.operation.multiplier +
             ' per ' +
@@ -88,12 +104,13 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         let speech = 'Ciao! ';
 
         let parameters = Parameters;
-        parameters.operation = smartMultiplication('down');
+        parameters.operation = smartMultiplication('down', parameters.multiplications);
         speech += 'Quanto fa ' +
             parameters.operation.multiplier +
             ' per ' +
             parameters.operation.multiplicand +
             '?';
+        parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
 
         agent.setContext({
             name: 'data',
