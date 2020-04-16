@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '0.3.32';
+const version = '0.3.33';
 
 const Multiplication = {
     multiplier: 0,
@@ -111,7 +111,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             parameters.operation.multiplicand +
             '?';
         parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
-
         agent.setContext({
             name: 'data',
             lifespan: 1,
