@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '0.3.33';
+const version = '0.4.3';
 
 const Multiplication = {
     multiplier: 0,
@@ -16,7 +16,8 @@ const Multiplication = {
 const Parameters = {
     operation: null,
     smartQuestion: 'down',
-    multiplications: Array.from({ length:10 }, () => (Array.from({ length:10 }, () => null)))
+    multiplications: Array.from({ length:10 }, () => (Array.from({ length:10 }, () => null))),
+    tryAgain: false,
 };
 
 process.env.DEBUG = 'dialogflow:debug';
@@ -72,19 +73,30 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
         if (guessedNumber === data.parameters.operation.result) {
             speech += 'Bravo! ';
+            data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
+            data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
+            data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
+            data.parameters.tryAgain = false;
         } else {
-            speech += 'No: ' +
-                data.parameters.operation.multiplier +
-                ' per ' +
-                data.parameters.operation.multiplicand +
-                ' fa ' +
-                data.parameters.operation.result +
-                '. ';
+            if (data.parameters.tryAgain === false) {
+                data.parameters.tryAgain = true;
+                speech += 'No, prova ancora. ';
+            } else {
+                data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
+                data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
+                data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
+
+                speech += 'No: ' +
+                    data.parameters.operation.multiplier +
+                    ' per ' +
+                    data.parameters.operation.multiplicand +
+                    ' fa ' +
+                    data.parameters.operation.result +
+                    '. ';
+                data.parameters.tryAgain = false;
+            }
         }
 
-        data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
-        data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
-        data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
         speech += 'Quanto fa ' +
             data.parameters.operation.multiplier +
             ' per ' +
