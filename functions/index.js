@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '0.4.3';
+const version = '0.5.21';
 
 const Multiplication = {
     multiplier: 0,
@@ -17,7 +17,10 @@ const Parameters = {
     operation: null,
     smartQuestion: 'down',
     multiplications: Array.from({ length:10 }, () => (Array.from({ length:10 }, () => null))),
-    tryAgain: false,
+    firstAttempt: true,
+    totalQuestions: 0,
+    rightResponses: 0,
+    limitQuestions: 5
 };
 
 process.env.DEBUG = 'dialogflow:debug';
@@ -64,6 +67,43 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         agent.add(`I'm sorry, can you try again?`);
     }
 
+    function playAgain(agent) {
+        log && console.log('[playAgain]');
+
+        let data = agent.getContext('data');
+        let confirmation = agent.parameters.confirmation;
+        let speech = '';
+
+        switch (confirmation) {
+            case 'sì':
+                data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
+                data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
+                data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
+                data.parameters.totalQuestions++;
+                speech += 'Quanto fa ' +
+                    data.parameters.operation.multiplier +
+                    ' per ' +
+                    data.parameters.operation.multiplicand +
+                    '?';
+                break;
+            case 'no':
+                speech += 'Alla prossima!';
+                agent.close(speech);
+                return;
+            default:
+                speech += 'Non ho capito; vuoi continuare a giocare?';
+                break;
+        }
+
+        agent.setContext({
+            name: 'data',
+            lifespan: 1,
+            parameters: data.parameters
+        });
+
+        agent.add(speech);
+    }
+
     function reply(agent) {
         log && console.log('[reply]');
 
@@ -73,19 +113,18 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
         if (guessedNumber === data.parameters.operation.result) {
             speech += 'Bravo! ';
-            data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
-            data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
-            data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
-            data.parameters.tryAgain = false;
+            data.parameters.rightResponses++;
+            data.parameters.firstAttempt = true;
         } else {
-            if (data.parameters.tryAgain === false) {
-                data.parameters.tryAgain = true;
-                speech += 'No, prova ancora. ';
+            if (data.parameters.firstAttempt === true) {
+                speech += 'No, prova ancora. ' +
+                    'Quanto fa ' +
+                    data.parameters.operation.multiplier +
+                    ' per ' +
+                    data.parameters.operation.multiplicand +
+                    '? ';
+                data.parameters.firstAttempt = false;
             } else {
-                data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
-                data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
-                data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
-
                 speech += 'No: ' +
                     data.parameters.operation.multiplier +
                     ' per ' +
@@ -93,15 +132,34 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                     ' fa ' +
                     data.parameters.operation.result +
                     '. ';
-                data.parameters.tryAgain = false;
+                data.parameters.firstAttempt = true;
             }
         }
 
-        speech += 'Quanto fa ' +
-            data.parameters.operation.multiplier +
-            ' per ' +
-            data.parameters.operation.multiplicand +
-            '?';
+        log && console.log('# questions');
+        log && console.log(data.parameters.totalQuestions);
+        log && console.log(data.parameters.limitQuestions);
+        log && console.log(data.parameters.totalQuestions % data.parameters.limitQuestions);
+        if (data.parameters.firstAttempt === true) {
+            if (data.parameters.totalQuestions % data.parameters.limitQuestions === 0) {
+                speech += 'Hai risposto correttamente a ' +
+                    data.parameters.rightResponses +
+                    ' domande su ' +
+                    data.parameters.totalQuestions +
+                    '. Vuoi continuare?';
+            } else {
+                data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
+                data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
+                data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
+                data.parameters.totalQuestions++;
+                speech += 'Quanto fa ' +
+                    data.parameters.operation.multiplier +
+                    ' per ' +
+                    data.parameters.operation.multiplicand +
+                    '?';
+            }
+        }
+
         agent.setContext({
             name: 'data',
             lifespan: 1,
@@ -117,6 +175,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
         let parameters = Parameters;
         parameters.operation = smartMultiplication('down', parameters.multiplications);
+        parameters.totalQuestions++;
         speech += 'Quanto fa ' +
             parameters.operation.multiplier +
             ' per ' +
@@ -135,6 +194,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     // Run the proper function handler based on the matched Dialogflow intent name
     let intentMap = new Map();
     intentMap.set('fallback', fallback);
+    intentMap.set('play_again', playAgain);
     intentMap.set('reply', reply);
     intentMap.set('start_game', welcome);
 
