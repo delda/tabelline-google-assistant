@@ -62,10 +62,13 @@ action.startTest('sottrazioni - sometimes a wrong answer', action => {
         })
         .then(({ textToSpeech, suggestions }) => {
             expect(textToSpeech[0]).to.have.string('No: ');
-            const splitText = textToSpeech[0].split('No: ');
-            let [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[1]);
-            const result = multiplier * multiplicand;
-            expect(result).to.not.be.eq(oldResult);
+            expect(textToSpeech[0]).to.have.string('Quanto fa ');
+            const splitText = textToSpeech[0].split('Quanto fa ');
+            let [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[0]);
+            let result = multiplier * multiplicand;
+            expect(result).to.be.eq(oldResult);
+            [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[1]);
+            result = multiplier * multiplicand;
             return action.send(result.toString());
         })
         .then(({ textToSpeech, suggestions }) => {
@@ -73,6 +76,6 @@ action.startTest('sottrazioni - sometimes a wrong answer', action => {
             const splitText = textToSpeech[0].split('Bravo!');
             let [multiplier, multiplicand] = utils.matchAll(/\d+/, splitText[1]);
             const result = multiplier * multiplicand;
-            return action.send(result.toString());
+            return action.send('stop');
         });
 });
