@@ -2,10 +2,16 @@
 
 const functions = require('firebase-functions');
 const {WebhookClient} = require('dialogflow-fulfillment');
-const {Card, Suggestion} = require('dialogflow-fulfillment');
+const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '0.5.21';
+const version = '0.5.39';
+
+const Statuses = {
+    START: 0,
+    QUESTION: 1,
+    CONFIRM: 2,
+};
 
 const Multiplication = {
     multiplier: 0,
@@ -20,7 +26,8 @@ const Parameters = {
     firstAttempt: true,
     totalQuestions: 0,
     rightResponses: 0,
-    limitQuestions: 5
+    limitQuestions: 5,
+    status: Statuses.START,
 };
 
 process.env.DEBUG = 'dialogflow:debug';
@@ -61,6 +68,22 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     const agent = new WebhookClient({ request, response });
     log && console.log('le-tabelline v' + version);
 
+    function endOfGame(agent) {
+        log && console.log('[endOfGame]');
+
+        let parameters = agent.getContext('data').parameters;
+        let speech = '';
+        speech += 'Hai risposto correttamente a ' +
+            parameters.rightResponses +
+            ' domand' +
+            ((parameters.rightResponses == 1) ? 'a' : 'e') +
+            ' su ' +
+            parameters.totalQuestions +
+            '. Alla prossima!';
+        let conv = agent.conv();
+        conv.close(speech);
+    }
+
     function fallback(agent) {
         log && console.log('[fallback]');
         agent.add(`I didn't understand`);
@@ -69,10 +92,10 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     function playAgain(agent) {
         log && console.log('[playAgain]');
-
+        let conv = agent.conv();
+        let speech = '';
         let data = agent.getContext('data');
         let confirmation = agent.parameters.confirmation;
-        let speech = '';
 
         switch (confirmation) {
             case 'sì':
@@ -87,83 +110,98 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                     '?';
                 break;
             case 'no':
-                speech += 'Alla prossima!';
-                agent.close(speech);
-                return;
+                log && console.log('*** no!');
+                speech += 'Ciao! Alla prossima!';
+                log && console.log(speech);
+                let conv = agent.conv();
+                log && console.log(conv);
+                conv.close(speech);
+                const data2 = conv.serialize();
+                agent.add(new Payload(
+                    'ACTIONS_ON_GOOGLE',
+                    data2.payload.google));
+                log && console.log('post conv.close()');
+                break;
             default:
                 speech += 'Non ho capito; vuoi continuare a giocare?';
                 break;
         }
 
-        agent.setContext({
-            name: 'data',
-            lifespan: 1,
-            parameters: data.parameters
-        });
+        log && console.log('confirmation');
+        if (confirmation === 'sì') {
+            agent.setContext({
+                name: 'data',
+                lifespan: 1,
+                parameters: data.parameters
+            });
 
-        agent.add(speech);
+            agent.add(speech);
+        }
+        log && console.log('end confirmation');
     }
 
     function reply(agent) {
         log && console.log('[reply]');
 
-        let data = agent.getContext('data');
-        let guessedNumber = agent.parameters.guessedNumber;
+        let parameters = agent.getContext('data').parameters;
+        let guessedNumber = parameters.guessedNumber;
         let speech = '';
 
-        if (guessedNumber === data.parameters.operation.result) {
+        if (guessedNumber === parameters.operation.result) {
             speech += 'Bravo! ';
-            data.parameters.rightResponses++;
-            data.parameters.firstAttempt = true;
+            parameters.rightResponses++;
+            parameters.firstAttempt = true;
+            parameters.status = Statuses.QUESTION;
         } else {
-            if (data.parameters.firstAttempt === true) {
+            if (parameters.firstAttempt === true) {
                 speech += 'No, prova ancora. ' +
                     'Quanto fa ' +
-                    data.parameters.operation.multiplier +
+                    parameters.operation.multiplier +
                     ' per ' +
-                    data.parameters.operation.multiplicand +
+                    parameters.operation.multiplicand +
                     '? ';
-                data.parameters.firstAttempt = false;
+                parameters.firstAttempt = false;
             } else {
                 speech += 'No: ' +
-                    data.parameters.operation.multiplier +
+                    parameters.operation.multiplier +
                     ' per ' +
-                    data.parameters.operation.multiplicand +
+                    parameters.operation.multiplicand +
                     ' fa ' +
-                    data.parameters.operation.result +
+                    parameters.operation.result +
                     '. ';
-                data.parameters.firstAttempt = true;
+                parameters.firstAttempt = true;
             }
+            parameters.status = Statuses.QUESTION;
         }
 
-        log && console.log('# questions');
-        log && console.log(data.parameters.totalQuestions);
-        log && console.log(data.parameters.limitQuestions);
-        log && console.log(data.parameters.totalQuestions % data.parameters.limitQuestions);
-        if (data.parameters.firstAttempt === true) {
-            if (data.parameters.totalQuestions % data.parameters.limitQuestions === 0) {
+        if (parameters.firstAttempt === true) {
+            if (parameters.totalQuestions % parameters.limitQuestions === 0) {
                 speech += 'Hai risposto correttamente a ' +
-                    data.parameters.rightResponses +
-                    ' domande su ' +
-                    data.parameters.totalQuestions +
+                    parameters.rightResponses +
+                    ' domand' +
+                    ((parameters.rightResponses == 1) ? 'a' : 'e') +
+                    ' su ' +
+                    parameters.totalQuestions +
                     '. Vuoi continuare?';
+                parameters.status = Statuses.CONFIRM;
             } else {
-                data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
-                data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
-                data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
-                data.parameters.totalQuestions++;
+                parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
+                parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
+                parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
+                parameters.totalQuestions++;
                 speech += 'Quanto fa ' +
-                    data.parameters.operation.multiplier +
+                    parameters.operation.multiplier +
                     ' per ' +
-                    data.parameters.operation.multiplicand +
+                    parameters.operation.multiplicand +
                     '?';
+                parameters.status = Statuses.QUESTION;
             }
         }
 
         agent.setContext({
             name: 'data',
             lifespan: 1,
-            parameters: data.parameters
+            parameters: parameters
         });
 
         agent.add(speech);
@@ -182,6 +220,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             parameters.operation.multiplicand +
             '?';
         parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
+        parameters.status = Statuses.QUESTION;
+
         agent.setContext({
             name: 'data',
             lifespan: 1,
@@ -193,6 +233,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     // Run the proper function handler based on the matched Dialogflow intent name
     let intentMap = new Map();
+    intentMap.set('end_of_game', endOfGame);
     intentMap.set('fallback', fallback);
     intentMap.set('play_again', playAgain);
     intentMap.set('reply', reply);
