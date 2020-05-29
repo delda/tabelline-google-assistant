@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '0.5.39';
+const version = '1.01.19';
 
 const Statuses = {
     START: 0,
@@ -30,6 +30,81 @@ const Parameters = {
     status: Statuses.START,
 };
 
+const context = {
+    it: {
+        welcome: [
+            'Ciao!',
+        ],
+        what_is: [
+            'Quanto fa %MULTIPLIER% per %MULTIPLICAND%?'
+        ],
+        wish_continue: [
+            'Vuoi continuare?'
+        ],
+        multiplication: [
+            '%MULTIPLIER% per %MULTIPLICAND% fa %RESULT%'
+        ],
+        next_time: [
+            'Alla prossima!',
+            'Ciao, alla prossima!'
+        ],
+        no: [
+            'No'
+        ],
+        ok: [
+            'Bravo!'
+        ],
+        response: [
+            'Hai risposto correttamente a %QUESTIONS% domande su %RIGHT_QUESTIONS%.',
+        ],
+        try_again: [
+            'No, prova ancora!'
+        ]
+    },
+    en: {
+        welcome: [
+            'Hi!',
+        ],
+        what_is: [
+            'What is %MULTIPLIER% times %MULTIPLICAND%?'
+        ],
+        wish_continue: [
+            'Do you wish to continue?'
+        ],
+        multiplication: [
+            '%MULTIPLIER% times %MULTIPLICAND% is %RESULT%'
+        ],
+        next_time: [
+            'See you!'
+        ],
+        no: [
+            'No'
+        ],
+        ok: [
+            'Good!'
+        ],
+        response: [
+            'You answered correctly on %QUESTIONS% questions of %RIGHT_QUESTIONS%.',
+        ],
+        try_again: [
+            'No, try again'
+        ]
+    }
+};
+
+const i18n = {
+    context: context,
+    language: 'it',
+    get: function(type) {
+        var sizeOfText = this.context[this.language][type].length;
+        var index = getRandomNumber(0, sizeOfText-1);
+        return this.context[this.language][type][index];
+    },
+    setLanguage: function(lang) {
+        this.language = lang;
+    }
+};
+
 process.env.DEBUG = 'dialogflow:debug';
 
 function addMultiplicationTable(operation, multiplications) {
@@ -44,7 +119,7 @@ function getRandomNumber(min, max) {
 
 function randomMultiplication(smartQuestion = 'down') {
     let mult = Multiplication;
-    mult.multiplier = getRandomNumber(1, 4);
+    mult.multiplier = getRandomNumber(1, 10);
     if (smartQuestion === 'down') {
         mult.multiplicand = getRandomNumber(0, 4);
     } else {
@@ -67,19 +142,19 @@ function smartMultiplication(smartQuestion = 'down', multiplications) {
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
     const agent = new WebhookClient({ request, response });
     log && console.log('le-tabelline v' + version);
+    i18n.setLanguage(agent.locale);
+    log && console.log(agent.locale);
 
     function endOfGame(agent) {
         log && console.log('[endOfGame]');
 
         let parameters = agent.getContext('data').parameters;
         let speech = '';
-        speech += 'Hai risposto correttamente a ' +
-            parameters.rightResponses +
-            ' domand' +
-            ((parameters.rightResponses == 1) ? 'a' : 'e') +
-            ' su ' +
-            parameters.totalQuestions +
-            '. Alla prossima!';
+        speech += i18n.get('response') +
+            ' ' +
+            i18n.get('next_time');
+        speech = speech.replace('%QUESTIONS%', parameters.rightResponses);
+        speech = speech.replace('%RIGHT_QUESTIONS%', parameters.totalQuestions);
         let conv = agent.conv();
         conv.close(speech);
     }
@@ -103,27 +178,18 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
                 data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
                 data.parameters.totalQuestions++;
-                speech += 'Quanto fa ' +
-                    data.parameters.operation.multiplier +
-                    ' per ' +
-                    data.parameters.operation.multiplicand +
-                    '?';
+                speech += i18n.get('what_is');
+                speech = speech.replace('%MULTIPLIER%', data.parameters.operation.multiplier);
+                speech = speech.replace('%MULTIPLICAND%', data.parameters.operation.multiplicand);
                 break;
             case 'no':
-                log && console.log('*** no!');
-                speech += 'Ciao! Alla prossima!';
-                log && console.log(speech);
+                speech += ' ' + i18n.get('next_time');
                 let conv = agent.conv();
-                log && console.log(conv);
                 conv.close(speech);
                 const data2 = conv.serialize();
                 agent.add(new Payload(
                     'ACTIONS_ON_GOOGLE',
                     data2.payload.google));
-                log && console.log('post conv.close()');
-                break;
-            default:
-                speech += 'Non ho capito; vuoi continuare a giocare?';
                 break;
         }
 
@@ -148,27 +214,25 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         let speech = '';
 
         if (guessedNumber === parameters.operation.result) {
-            speech += 'Bravo! ';
+            speech += i18n.get('ok');
             parameters.rightResponses++;
             parameters.firstAttempt = true;
             parameters.status = Statuses.QUESTION;
         } else {
             if (parameters.firstAttempt === true) {
-                speech += 'No, prova ancora. ' +
-                    'Quanto fa ' +
-                    parameters.operation.multiplier +
-                    ' per ' +
-                    parameters.operation.multiplicand +
-                    '? ';
+                speech += i18n.get('try_again');
+                speech += ' ' + i18n.get('what_is');
+                speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
+                speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
                 parameters.firstAttempt = false;
             } else {
-                speech += 'No: ' +
-                    parameters.operation.multiplier +
-                    ' per ' +
-                    parameters.operation.multiplicand +
-                    ' fa ' +
-                    parameters.operation.result +
+                speech += i18n.get('no') +
+                    ': ' +
+                    i18n.get('multiplication') +
                     '. ';
+                speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
+                speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
+                speech = speech.replace('%RESULT%', parameters.operation.result.toString());
                 parameters.firstAttempt = true;
             }
             parameters.status = Statuses.QUESTION;
@@ -176,24 +240,19 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
         if (parameters.firstAttempt === true) {
             if (parameters.totalQuestions % parameters.limitQuestions === 0) {
-                speech += 'Hai risposto correttamente a ' +
-                    parameters.rightResponses +
-                    ' domand' +
-                    ((parameters.rightResponses == 1) ? 'a' : 'e') +
-                    ' su ' +
-                    parameters.totalQuestions +
-                    '. Vuoi continuare?';
+                speech += ' ' + i18n.get('response');
+                speech = speech.replace('%QUESTIONS%', parameters.rightResponses);
+                speech = speech.replace('%RIGHT_QUESTIONS%', parameters.totalQuestions);
+                speech += i18n.get('wish_continue');
                 parameters.status = Statuses.CONFIRM;
             } else {
                 parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
                 parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
                 parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
                 parameters.totalQuestions++;
-                speech += 'Quanto fa ' +
-                    parameters.operation.multiplier +
-                    ' per ' +
-                    parameters.operation.multiplicand +
-                    '?';
+                speech += ' ' + i18n.get('what_is');
+                speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
+                speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
                 parameters.status = Statuses.QUESTION;
             }
         }
@@ -209,16 +268,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     function welcome(agent) {
         log && console.log('[welcome]');
-        let speech = 'Ciao! ';
-
+        let speech = '';
         let parameters = Parameters;
+
         parameters.operation = smartMultiplication('down', parameters.multiplications);
         parameters.totalQuestions++;
-        speech += 'Quanto fa ' +
-            parameters.operation.multiplier +
-            ' per ' +
-            parameters.operation.multiplicand +
-            '?';
+        speech += i18n.get('welcome');
+        speech += ' ' + i18n.get('what_is');
+        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
+        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
         parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
         parameters.status = Statuses.QUESTION;
 
