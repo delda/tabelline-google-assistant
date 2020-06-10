@@ -5,12 +5,13 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '1.01.19';
+const version = '1.02.19';
 
 const Statuses = {
     START: 0,
-    QUESTION: 1,
-    CONFIRM: 2,
+    FIRST_ATTEMPT: 1,
+    SECOND_ATTEMPT: 2,
+    CONFIRM: 3,
 };
 
 const Multiplication = {
@@ -32,14 +33,8 @@ const Parameters = {
 
 const context = {
     it: {
-        welcome: [
-            'Ciao!',
-        ],
-        what_is: [
-            'Quanto fa %MULTIPLIER% per %MULTIPLICAND%?'
-        ],
-        wish_continue: [
-            'Vuoi continuare?'
+        dont_understand: [
+            'Non ho capito',
         ],
         multiplication: [
             '%MULTIPLIER% per %MULTIPLICAND% fa %RESULT%'
@@ -59,17 +54,20 @@ const context = {
         ],
         try_again: [
             'No, prova ancora!'
+        ],
+        welcome: [
+            'Ciao!',
+        ],
+        what_is: [
+            'Quanto fa %MULTIPLIER% per %MULTIPLICAND%?'
+        ],
+        wish_continue: [
+            'Vuoi continuare?'
         ]
     },
     en: {
-        welcome: [
-            'Hi!',
-        ],
-        what_is: [
-            'What is %MULTIPLIER% times %MULTIPLICAND%?'
-        ],
-        wish_continue: [
-            'Do you wish to continue?'
+        dont_understand: [
+            'I don\'t understand',
         ],
         multiplication: [
             '%MULTIPLIER% times %MULTIPLICAND% is %RESULT%'
@@ -88,6 +86,15 @@ const context = {
         ],
         try_again: [
             'No, try again'
+        ],
+        welcome: [
+            'Hi!',
+        ],
+        what_is: [
+            'What is %MULTIPLIER% times %MULTIPLICAND%?'
+        ],
+        wish_continue: [
+            'Do you wish to continue?'
         ]
     }
 };
@@ -141,9 +148,8 @@ function smartMultiplication(smartQuestion = 'down', multiplications) {
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
     const agent = new WebhookClient({ request, response });
-    log && console.log('le-tabelline v' + version);
+    log && console.log('le-tabelline v' + version + ' ' + agent.locale);
     i18n.setLanguage(agent.locale);
-    log && console.log(agent.locale);
 
     function endOfGame(agent) {
         log && console.log('[endOfGame]');
@@ -167,43 +173,48 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     function playAgain(agent) {
         log && console.log('[playAgain]');
-        let conv = agent.conv();
+        let parameters = agent.getContext('data').parameters;
+        console.log(parameters);
         let speech = '';
-        let data = agent.getContext('data');
-        let confirmation = agent.parameters.confirmation;
+        let confirmation = parameters.confirmation;
 
-        switch (confirmation) {
-            case 'sì':
-                data.parameters.smartQuestion = data.parameters.smartQuestion === 'up' ? 'down' : 'up';
-                data.parameters.operation = smartMultiplication(data.parameters.smartQuestion, data.parameters.multiplications);
-                data.parameters.multiplications = addMultiplicationTable(data.parameters.operation, data.parameters.multiplications);
-                data.parameters.totalQuestions++;
-                speech += i18n.get('what_is');
-                speech = speech.replace('%MULTIPLIER%', data.parameters.operation.multiplier);
-                speech = speech.replace('%MULTIPLICAND%', data.parameters.operation.multiplicand);
-                break;
-            case 'no':
-                speech += ' ' + i18n.get('next_time');
-                let conv = agent.conv();
-                conv.close(speech);
-                const data2 = conv.serialize();
-                agent.add(new Payload(
-                    'ACTIONS_ON_GOOGLE',
-                    data2.payload.google));
-                break;
+        if (parameters.status !== Statuses.CONFIRM) {
+            console.log('no confirm');
+            speech += i18n.get('dont_understand') + '.';
+            speech += ' ' + i18n.get('what_is');
+            speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
+            speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
+            console.log(speech);
+        } else {
+            console.log('confirm');
+            switch (confirmation) {
+                case 'sì':
+                    parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
+                    parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
+                    parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
+                    parameters.totalQuestions++;
+                    speech += i18n.get('what_is');
+                    speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
+                    speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
+                    break;
+                case 'no':
+                    speech += ' ' + i18n.get('next_time');
+                    let conv = agent.conv();
+                    conv.close(speech);
+                    const data2 = conv.serialize();
+                    agent.add(new Payload(
+                        'ACTIONS_ON_GOOGLE',
+                        data2.payload.google));
+                    break;
+            }
         }
+        agent.setContext({
+            name: 'data',
+            lifespan: 1,
+            parameters: parameters
+        });
 
-        log && console.log('confirmation');
-        if (confirmation === 'sì') {
-            agent.setContext({
-                name: 'data',
-                lifespan: 1,
-                parameters: data.parameters
-            });
-
-            agent.add(speech);
-        }
-        log && console.log('end confirmation');
+        agent.add(speech);
     }
 
     function reply(agent) {
@@ -216,15 +227,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         if (guessedNumber === parameters.operation.result) {
             speech += i18n.get('ok');
             parameters.rightResponses++;
-            parameters.firstAttempt = true;
-            parameters.status = Statuses.QUESTION;
+            parameters.status = Statuses.FIRST_ATTEMPT;
         } else {
-            if (parameters.firstAttempt === true) {
+            if (parameters.status === Statuses.FIRST_ATTEMPT) {
                 speech += i18n.get('try_again');
                 speech += ' ' + i18n.get('what_is');
                 speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
                 speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
-                parameters.firstAttempt = false;
+                parameters.status = Statuses.SECOND_ATTEMPT;
             } else {
                 speech += i18n.get('no') +
                     ': ' +
@@ -233,17 +243,16 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
                 speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
                 speech = speech.replace('%RESULT%', parameters.operation.result.toString());
-                parameters.firstAttempt = true;
+                parameters.status = Statuses.FIRST_ATTEMPT;
             }
-            parameters.status = Statuses.QUESTION;
         }
 
-        if (parameters.firstAttempt === true) {
+        if (parameters.status === Statuses.FIRST_ATTEMPT) {
             if (parameters.totalQuestions % parameters.limitQuestions === 0) {
                 speech += ' ' + i18n.get('response');
                 speech = speech.replace('%QUESTIONS%', parameters.rightResponses);
                 speech = speech.replace('%RIGHT_QUESTIONS%', parameters.totalQuestions);
-                speech += i18n.get('wish_continue');
+                speech += ' ' + i18n.get('wish_continue');
                 parameters.status = Statuses.CONFIRM;
             } else {
                 parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
@@ -253,7 +262,6 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 speech += ' ' + i18n.get('what_is');
                 speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
                 speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
-                parameters.status = Statuses.QUESTION;
             }
         }
 
@@ -278,7 +286,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
         speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
         parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
-        parameters.status = Statuses.QUESTION;
+        parameters.status = Statuses.FIRST_ATTEMPT;
 
         agent.setContext({
             name: 'data',
