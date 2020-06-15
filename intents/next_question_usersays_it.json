@@ -1,0 +1,92 @@
+[
+  {
+    "id": "6551582f-debf-4c41-a334-0a3d81487d75",
+    "data": [
+      {
+        "text": "prossima domanda",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "fd625b50-1b2e-48cd-99f6-4c7e3e34dfa1",
+    "data": [
+      {
+        "text": "salta",
+        "meta": "@sys.ignore",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "014c62c7-c627-4a5e-aba1-a8f70a9d4d9e",
+    "data": [
+      {
+        "text": "prossima",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "7395842e-49e2-4ed9-bd55-43e94f9fbccc",
+    "data": [
+      {
+        "text": "la prossima",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "423f5665-10a6-4bcf-8fc9-2b08155d6593",
+    "data": [
+      {
+        "text": "avanti alla prossima",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "5450f562-acdd-4df7-bce9-572fe788e9ac",
+    "data": [
+      {
+        "text": "salta",
+        "meta": "@sys.ignore",
+        "userDefined": false
+      },
+      {
+        "text": " la domanda",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "be76b99b-4b6f-46ac-aa0c-bfa4f60549e0",
+    "data": [
+      {
+        "text": "salta alla prossima",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  }
+]

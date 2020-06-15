@@ -1,6 +1,6 @@
 {
-  "id": "4037be82-b46b-4984-a54c-551b3d9171cb",
-  "name": "reply",
+  "id": "0183661a-5f72-4056-864e-cbc3c3675ca8",
+  "name": "play_again",
   "auto": true,
   "contexts": [],
   "responses": [
@@ -9,11 +9,11 @@
       "affectedContexts": [],
       "parameters": [
         {
-          "id": "53f92194-445e-4dac-9db4-9d022e1314f1",
+          "id": "6ad1b4f9-ab65-44fb-a020-8a3cf242cd88",
           "required": false,
-          "dataType": "@sys.number",
-          "name": "guessedNumber",
-          "value": "$guessedNumber",
+          "dataType": "@confirmation",
+          "name": "confirmation",
+          "value": "$confirmation",
           "promptMessages": [],
           "noMatchPromptMessages": [],
           "noInputPromptMessages": [],

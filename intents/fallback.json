@@ -1,5 +1,5 @@
 {
-  "id": "1d9646ad-0cea-4798-ad70-90e4f6957af0",
+  "id": "50852d53-4351-4f62-9adb-7d1daff1acb0",
   "name": "fallback",
   "auto": true,
   "contexts": [],
@@ -11,9 +11,9 @@
       "messages": [
         {
           "type": 0,
-          "lang": "it",
+          "lang": "en",
           "condition": "",
-          "speech": "Non ho capito"
+          "speech": []
         }
       ],
       "defaultResponsePlatforms": {},
@@ -21,9 +21,9 @@
     }
   ],
   "priority": 500000,
-  "webhookUsed": false,
+  "webhookUsed": true,
   "webhookForSlotFilling": false,
-  "fallbackIntent": false,
+  "fallbackIntent": true,
   "events": [],
   "conditionalResponses": [],
   "condition": "",

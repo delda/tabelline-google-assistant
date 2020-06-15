@@ -1,0 +1,16 @@
+[
+  {
+    "id": "da57961e-d13b-45b6-b2ac-01d51a3abbd0",
+    "data": [
+      {
+        "text": "1",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  }
+]

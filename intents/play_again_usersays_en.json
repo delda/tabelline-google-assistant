@@ -1,0 +1,30 @@
+[
+  {
+    "id": "c9515071-3683-4c7d-8964-70e5d5505ebe",
+    "data": [
+      {
+        "text": "yes",
+        "alias": "confirmation",
+        "meta": "@confirmation",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "2b753e86-5869-42ab-9f2e-aefddb1b1b4f",
+    "data": [
+      {
+        "text": "no",
+        "alias": "confirmation",
+        "meta": "@confirmation",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  }
+]
