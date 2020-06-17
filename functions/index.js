@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '1.04.02';
+const version = '1.05.09';
 
 const Statuses = {
     START: 0,
@@ -29,6 +29,7 @@ const Parameters = {
     rightResponses: 0,
     limitQuestions: 5,
     status: Statuses.START,
+    profanity: 0,
 };
 
 const context = {
@@ -38,34 +39,45 @@ const context = {
             'Ciao, alla prossima!',
         ],
         dont_understand: [
-            'Non ho capito',
+            'Non ho capito.',
         ],
         multiplication: [
-            '%MULTIPLIER% per %MULTIPLICAND% fa %RESULT%'
+            '%MULTIPLIER% per %MULTIPLICAND% fa %RESULT%.',
         ],
         no: [
-            'No'
+            'No',
+        ],
+        no_profanity: [
+            'Non tollero i turpiloqui.',
+            'Evita parole inutili.',
+            'Non servono a nulla le tue parole offensive.',
+            'Lascia stare le parolacce.',
+            'Non mi piaccino le scurrilità.',
+            'Non essere triviale.',
+            'Vai a controllare cosa siano le turpitudini.',
+            'Cerca di evitare le volgarità.',
+            'Cosa c\'è di male? Non saprei.',
         ],
         ok: [
-            'Ok'
+            'Ok!',
         ],
         response: [
             'Hai risposto correttamente a %QUESTIONS% domande su %RIGHT_QUESTIONS%.',
         ],
         right: [
-            'Bravo!'
+            'Bravo!',
         ],
         try_again: [
-            'No, prova ancora!'
+            'No, prova ancora!',
         ],
         welcome: [
             'Ciao!',
         ],
         what_is: [
-            'Quanto fa %MULTIPLIER% per %MULTIPLICAND%?'
+            'Quanto fa %MULTIPLIER% per %MULTIPLICAND%?',
         ],
         wish_continue: [
-            'Vuoi continuare?'
+            'Vuoi continuare?',
         ]
     },
     en: {
@@ -74,34 +86,37 @@ const context = {
             'See you!',
         ],
         dont_understand: [
-            'I don\'t understand',
+            'I don\'t understand.',
         ],
         multiplication: [
-            '%MULTIPLIER% times %MULTIPLICAND% is %RESULT%'
+            '%MULTIPLIER% times %MULTIPLICAND% is %RESULT%',
         ],
         no: [
-            'No'
+            'No',
+        ],
+        no_profanity: [
+            'Please, no profanity in this game.'
         ],
         ok: [
-            'Ok'
+            'Ok!',
         ],
         response: [
             'You answered correctly on %QUESTIONS% questions of %RIGHT_QUESTIONS%.',
         ],
         right: [
-            'Good!'
+            'Good!',
         ],
         try_again: [
-            'No, try again'
+            'No, try again',
         ],
         welcome: [
             'Hi!',
         ],
         what_is: [
-            'What is %MULTIPLIER% times %MULTIPLICAND%?'
+            'What is %MULTIPLIER% times %MULTIPLICAND%?',
         ],
         wish_continue: [
-            'Do you wish to continue?'
+            'Do you wish to continue?',
         ]
     }
 };
@@ -188,7 +203,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         if (parameters.status === Statuses.FIRST_ATTEMPT
             || parameters.status === Statuses.SECOND_ATTEMPT)
         {
-            speech += i18n.get('ok') + '.';
+            speech += i18n.get('ok');
             parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
             parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
             parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
@@ -197,7 +212,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
             speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
         } else {
-            speech += i18n.get('dont_understand') + '.';
+            speech += i18n.get('dont_understand');
             speech += ' ' + i18n.get('wish_continue');
         }
 
@@ -254,6 +269,42 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         agent.add(speech);
     }
 
+    function profanityWords(agent) {
+        log && console.log('[profanityWords]');
+
+        let parameters = agent.getContext('data').parameters;
+        let speech = '';
+
+        if (parameters.profanity > 0) {
+            speech += i18n.get('no_profanity');
+            speech += ' ' + i18n.get('response');
+            speech = speech.replace('%QUESTIONS%', parameters.rightResponses);
+            speech = speech.replace('%RIGHT_QUESTIONS%', parameters.totalQuestions);
+            speech += ' ' + i18n.get('bye_bye');
+            let conv = agent.conv();
+            conv.close(speech);
+            const data = conv.serialize();
+            agent.add(new Payload(
+                'ACTIONS_ON_GOOGLE',
+                data.payload.google));
+            return;
+        }
+
+        speech += i18n.get('no_profanity');
+        speech += ' ' + i18n.get('what_is');
+        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
+        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
+        parameters.profanity++;
+
+        agent.setContext({
+            name: 'data',
+            lifespan: 1,
+            parameters: parameters
+        });
+
+        agent.add(speech);
+    }
+
     function reply(agent) {
         log && console.log('[reply]');
 
@@ -270,27 +321,29 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                 parameters.rightResponses++;
                 parameters.status = Statuses.FIRST_ATTEMPT;
             } else {
-                if (parameters.status === Statuses.FIRST_ATTEMPT) {
+                if (parameters.status === Statuses.SECOND_ATTEMPT) {
+                    speech += i18n.get('no') +
+                        ' ' +
+                        i18n.get('multiplication');
+                    speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
+                    speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
+                    speech = speech.replace('%RESULT%', parameters.operation.result.toString());
+                    parameters.status = Statuses.FIRST_ATTEMPT;
+                } else {
                     speech += i18n.get('try_again');
                     speech += ' ' + i18n.get('what_is');
                     speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
                     speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
                     parameters.status = Statuses.SECOND_ATTEMPT;
-                } else {
-                    speech += i18n.get('no') +
-                        ': ' +
-                        i18n.get('multiplication') +
-                        '. ';
-                    speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
-                    speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
-                    speech = speech.replace('%RESULT%', parameters.operation.result.toString());
-                    parameters.status = Statuses.FIRST_ATTEMPT;
                 }
             }
 
             if (parameters.status === Statuses.FIRST_ATTEMPT) {
                 if (parameters.totalQuestions % parameters.limitQuestions === 0) {
                     speech += ' ' + i18n.get('response');
+                    if (parameters.rightResponses === 1) {
+                        speech = speech.replace('domande', 'domanda');
+                    }
                     speech = speech.replace('%QUESTIONS%', parameters.rightResponses);
                     speech = speech.replace('%RIGHT_QUESTIONS%', parameters.totalQuestions);
                     speech += ' ' + i18n.get('wish_continue');
@@ -344,6 +397,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     intentMap.set('fallback', fallback);
     intentMap.set('next_question', nextQuestion);
     intentMap.set('play_again', playAgain);
+    intentMap.set('profanity_words', profanityWords);
     intentMap.set('reply', reply);
     intentMap.set('start_game', welcome);
 
