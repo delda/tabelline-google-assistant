@@ -1,6 +1,6 @@
 {
-  "id": "0b4d73ed-d941-4551-8271-ab7bfb6b5763",
-  "name": "profanity_words",
+  "id": "7a12a4f9-3187-4614-a4d1-40fa06231f8b",
+  "name": "dont_know",
   "auto": true,
   "contexts": [],
   "responses": [
@@ -14,7 +14,7 @@
           "type": "0",
           "title": "",
           "textToSpeech": "",
-          "lang": "en",
+          "lang": "it",
           "condition": ""
         }
       ],

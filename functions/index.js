@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '1.05.09';
+const version = '1.05.10';
 
 const Statuses = {
     START: 0,
@@ -172,6 +172,33 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     const agent = new WebhookClient({ request, response });
     log && console.log('le-tabelline v' + version + ' ' + agent.locale);
     i18n.setLanguage(agent.locale);
+
+    function dontKnow(agent) {
+        log && console.log('[dontKnow]');
+
+        let parameters = agent.getContext('data').parameters;
+        let conv = agent.conv();
+        let speech = i18n.get('ok');
+        speech += ' ' + i18n.get('multiplication');
+        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
+        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
+        speech = speech.replace('%RESULT%', parameters.operation.result.toString());
+        parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
+        parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
+        parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
+        parameters.totalQuestions++;
+        speech += ' ' + i18n.get('what_is');
+        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
+        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
+
+        agent.setContext({
+            name: 'data',
+            lifespan: 1,
+            parameters: parameters
+        });
+
+        agent.add(speech);
+    }
 
     function fallback(agent) {
         log && console.log('[fallback]');
@@ -394,6 +421,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     // Run the proper function handler based on the matched Dialogflow intent name
     let intentMap = new Map();
+    intentMap.set('dont_know', dontKnow);
     intentMap.set('fallback', fallback);
     intentMap.set('next_question', nextQuestion);
     intentMap.set('play_again', playAgain);
