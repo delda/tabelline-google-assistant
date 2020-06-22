@@ -6,23 +6,28 @@
   "responses": [
     {
       "resetContexts": false,
+      "action": "",
       "affectedContexts": [],
       "parameters": [],
       "messages": [
         {
-          "type": 0,
+          "type": "0",
+          "title": "",
+          "textToSpeech": "",
           "lang": "en",
-          "condition": "",
-          "speech": "english hello"
+          "speech": [
+            "english hello"
+          ],
+          "condition": ""
         },
         {
-          "type": 0,
+          "type": "0",
+          "title": "",
+          "textToSpeech": "",
           "lang": "it",
-          "condition": "",
-          "speech": []
+          "condition": ""
         }
       ],
-      "defaultResponsePlatforms": {},
       "speech": []
     }
   ],

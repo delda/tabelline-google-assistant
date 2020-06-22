@@ -1,16 +1,16 @@
 [
   {
-    "id": "2a0a6168-cbf7-4fa5-ba6f-a3f25babf72e",
     "data": [
       {
         "text": "1",
-        "alias": "guessedNumber",
         "meta": "@sys.number",
+        "alias": "guessedNumber",
         "userDefined": true
       }
     ],
     "isTemplate": false,
     "count": 0,
+    "lang": "en",
     "updated": 0
   }
 ]

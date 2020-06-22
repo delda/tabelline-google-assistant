@@ -4,13 +4,14 @@
     "data": [
       {
         "text": "1",
-        "alias": "guessedNumber",
         "meta": "@sys.number",
+        "alias": "guessedNumber",
         "userDefined": false
       }
     ],
     "isTemplate": false,
     "count": 1,
+    "lang": "it",
     "updated": 0
   }
 ]

@@ -1,30 +1,30 @@
 [
   {
-    "id": "e280efe2-9000-40ec-810d-6fb1700eb398",
     "data": [
       {
         "text": "yes",
-        "alias": "confirmation",
         "meta": "@confirmation",
+        "alias": "confirmation",
         "userDefined": true
       }
     ],
     "isTemplate": false,
     "count": 0,
+    "lang": "en",
     "updated": 0
   },
   {
-    "id": "cc305c6f-0ba8-4b67-ba77-c1077499d408",
     "data": [
       {
         "text": "no",
-        "alias": "confirmation",
         "meta": "@confirmation",
+        "alias": "confirmation",
         "userDefined": true
       }
     ],
     "isTemplate": false,
     "count": 0,
+    "lang": "en",
     "updated": 0
   }
 ]

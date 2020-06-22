@@ -6,30 +6,33 @@
   "responses": [
     {
       "resetContexts": false,
+      "action": "",
       "affectedContexts": [],
       "parameters": [
         {
           "id": "6ad1b4f9-ab65-44fb-a020-8a3cf242cd88",
+          "name": "confirmation",
           "required": false,
           "dataType": "@confirmation",
-          "name": "confirmation",
           "value": "$confirmation",
+          "defaultValue": "",
+          "isList": false,
+          "prompts": [],
           "promptMessages": [],
           "noMatchPromptMessages": [],
           "noInputPromptMessages": [],
-          "outputDialogContexts": [],
-          "isList": false
+          "outputDialogContexts": []
         }
       ],
       "messages": [
         {
-          "type": 0,
+          "type": "0",
+          "title": "",
+          "textToSpeech": "",
           "lang": "it",
-          "condition": "",
-          "speech": []
+          "condition": ""
         }
       ],
-      "defaultResponsePlatforms": {},
       "speech": []
     }
   ],

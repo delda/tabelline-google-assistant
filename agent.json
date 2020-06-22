@@ -4,6 +4,7 @@
   "shortDescription": "",
   "examples": "",
   "linkToDocs": "",
+  "displayName": "le-tabelline",
   "activeAssistantAgents": [
     "smalltalk-domain-on"
   ],
@@ -50,7 +51,9 @@
   "supportedLanguages": [
     "it"
   ],
+  "enableOnePlatformApi": true,
   "onePlatformApiVersion": "v2",
+  "secondaryKey": "092b33ed9c224e88939850beeb5bfc95",
   "analyzeQueryTextSentiment": false,
   "enabledKnowledgeBaseNames": [],
   "knowledgeServiceConfidenceAdjustment": -0.4,
