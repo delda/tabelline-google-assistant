@@ -1,26 +1,13 @@
 {
-  "id": "0183661a-5f72-4056-864e-cbc3c3675ca8",
-  "name": "play_again",
+  "id": "f59a1c31-d9db-4d95-8ca5-b93a617e3960",
+  "name": "end_game",
   "auto": true,
   "contexts": [],
   "responses": [
     {
       "resetContexts": false,
       "affectedContexts": [],
-      "parameters": [
-        {
-          "id": "6ad1b4f9-ab65-44fb-a020-8a3cf242cd88",
-          "required": false,
-          "dataType": "@confirmation",
-          "name": "confirmation",
-          "value": "$confirmation",
-          "promptMessages": [],
-          "noMatchPromptMessages": [],
-          "noInputPromptMessages": [],
-          "outputDialogContexts": [],
-          "isList": false
-        }
-      ],
+      "parameters": [],
       "messages": [
         {
           "type": 0,
@@ -34,7 +21,7 @@
     }
   ],
   "priority": 500000,
-  "webhookUsed": true,
+  "webhookUsed": false,
   "webhookForSlotFilling": false,
   "fallbackIntent": false,
   "events": [],

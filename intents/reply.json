@@ -6,33 +6,30 @@
   "responses": [
     {
       "resetContexts": false,
-      "action": "",
       "affectedContexts": [],
       "parameters": [
         {
           "id": "53f92194-445e-4dac-9db4-9d022e1314f1",
-          "name": "guessedNumber",
           "required": false,
           "dataType": "@sys.number",
+          "name": "guessedNumber",
           "value": "$guessedNumber",
-          "defaultValue": "",
-          "isList": false,
-          "prompts": [],
           "promptMessages": [],
           "noMatchPromptMessages": [],
           "noInputPromptMessages": [],
-          "outputDialogContexts": []
+          "outputDialogContexts": [],
+          "isList": false
         }
       ],
       "messages": [
         {
-          "type": "0",
-          "title": "",
-          "textToSpeech": "",
+          "type": 0,
           "lang": "it",
-          "condition": ""
+          "condition": "",
+          "speech": []
         }
       ],
+      "defaultResponsePlatforms": {},
       "speech": []
     }
   ],

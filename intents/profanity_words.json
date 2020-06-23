@@ -6,18 +6,17 @@
   "responses": [
     {
       "resetContexts": false,
-      "action": "",
       "affectedContexts": [],
       "parameters": [],
       "messages": [
         {
-          "type": "0",
-          "title": "",
-          "textToSpeech": "",
+          "type": 0,
           "lang": "en",
-          "condition": ""
+          "condition": "",
+          "speech": []
         }
       ],
+      "defaultResponsePlatforms": {},
       "speech": []
     }
   ],

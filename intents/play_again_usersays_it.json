@@ -1,30 +1,30 @@
 [
   {
+    "id": "90d6aa17-85a8-4e10-aedd-cd2df03271eb",
     "data": [
       {
         "text": "no",
-        "meta": "@confirmation",
         "alias": "confirmation",
+        "meta": "@confirmation",
         "userDefined": false
       }
     ],
     "isTemplate": false,
     "count": 1,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "0fac26b7-b74c-493d-bf98-fe9eba1f9281",
     "data": [
       {
         "text": "sì",
-        "meta": "@confirmation",
         "alias": "confirmation",
+        "meta": "@confirmation",
         "userDefined": false
       }
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   }
 ]

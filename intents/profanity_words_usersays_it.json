@@ -1,5 +1,42 @@
 [
   {
+    "id": "97980034-f9c4-4c9e-8c59-5860a7efac3e",
+    "data": [
+      {
+        "text": "fanculo",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "79b95b35-b243-4ae1-8ec7-4c8d850fa0f2",
+    "data": [
+      {
+        "text": "fottiti",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "8ac3fb3a-d43a-4b96-ab47-3c236495cf78",
+    "data": [
+      {
+        "text": "fottere",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "96dee8a8-cc68-471d-b013-47352e6609da",
     "data": [
       {
         "text": "scemo",
@@ -8,10 +45,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "065cf136-5677-46b9-9f2e-ee795f8fd9a5",
     "data": [
       {
         "text": "corna",
@@ -21,10 +58,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "25a1e368-dea1-4ff7-aa31-45da31ce58d4",
     "data": [
       {
         "text": "porco",
@@ -34,10 +71,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "e2791ac8-2ffd-40e5-8649-f5ebe590f3eb",
     "data": [
       {
         "text": "trombare",
@@ -46,10 +83,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "b2471da4-ce42-4055-b6ee-17764eb4ec0b",
     "data": [
       {
         "text": "bagascia",
@@ -58,10 +95,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "f87976d6-3d48-4d11-af33-b4fb4b4fc308",
     "data": [
       {
         "text": "zoccola",
@@ -70,10 +107,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "85634f28-b401-493d-a2d8-909e6273529a",
     "data": [
       {
         "text": "troia",
@@ -83,10 +120,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "6dd43f20-4486-4f3e-97c0-8b5d7ed97288",
     "data": [
       {
         "text": "topa",
@@ -96,10 +133,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "afe7d7d2-ea71-48a5-a55d-76e985e86ee0",
     "data": [
       {
         "text": "ricchione",
@@ -108,10 +145,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "cb7b6c24-6ef0-4021-942b-fd86e7754d07",
     "data": [
       {
         "text": "puttana",
@@ -120,10 +157,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "6d3e433e-3504-4e3e-8b13-8a812f5bc1dd",
     "data": [
       {
         "text": "mignotta",
@@ -132,10 +169,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "7209ef40-e8f6-476a-8759-461a671f47a7",
     "data": [
       {
         "text": "stronzo",
@@ -144,10 +181,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "71913f78-691a-4fda-ae5b-bac33796e332",
     "data": [
       {
         "text": "merda",
@@ -157,10 +194,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "5ee2c87b-28a1-4986-8dc0-eefc50b7bc97",
     "data": [
       {
         "text": "fregna",
@@ -169,10 +206,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "ccf3b5b3-1d8c-485e-ab9c-26d1971ad627",
     "data": [
       {
         "text": "figa",
@@ -182,10 +219,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "11950d76-99a4-46e1-81ef-694563a1cd87",
     "data": [
       {
         "text": "vaffanculo",
@@ -194,10 +231,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "a86519b3-9551-4264-a2f5-4fc991de71e3",
     "data": [
       {
         "text": "culo",
@@ -206,10 +243,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "17b79587-4671-4342-8537-2a88b6aa6fe1",
     "data": [
       {
         "text": "frocio",
@@ -218,10 +255,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "52df1591-36e2-4f00-8535-65538b9d4af5",
     "data": [
       {
         "text": "scopare",
@@ -230,10 +267,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "db832361-ad30-4f83-a11f-51546a1c153c",
     "data": [
       {
         "text": "sborra",
@@ -242,10 +279,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "91f42bb3-6f99-48e2-baf5-8f520b98baf9",
     "data": [
       {
         "text": "finocchio",
@@ -255,10 +292,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "6426fa65-4544-4134-8948-bed60cbc6598",
     "data": [
       {
         "text": "bastardo",
@@ -268,10 +305,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "767711e1-57df-4abb-8bd0-b161323a7931",
     "data": [
       {
         "text": "baldracca",
@@ -280,10 +317,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "74d52d1a-6643-4117-b9a1-8a8bc5bbbeb5",
     "data": [
       {
         "text": "coglione",
@@ -292,10 +329,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "70fd0fda-6be1-4e52-a0f0-b780c5b1b4a4",
     "data": [
       {
         "text": "minchia",
@@ -304,10 +341,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "e3539d02-2fee-44ee-a2dc-8023fe142d6c",
     "data": [
       {
         "text": "cagare",
@@ -316,10 +353,10 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   },
   {
+    "id": "62cb069e-a101-48be-9ff3-ba3232153ccf",
     "data": [
       {
         "text": "cazzo",
@@ -328,7 +365,6 @@
     ],
     "isTemplate": false,
     "count": 0,
-    "lang": "it",
     "updated": 0
   }
 ]
