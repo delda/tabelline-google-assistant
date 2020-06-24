@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '1.05.10';
+const version = '1.06.01';
 
 const Statuses = {
     START: 0,
@@ -160,7 +160,7 @@ function randomMultiplication(smartQuestion = 'down') {
 }
 
 function smartMultiplication(smartQuestion = 'down', multiplications) {
-    let min, max, result;
+    let result;
     do {
         result = randomMultiplication(smartQuestion);
     } while (multiplications[result.multiplier-1][result.multiplicand-1] !== null);
@@ -170,170 +170,12 @@ function smartMultiplication(smartQuestion = 'down', multiplications) {
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
     const agent = new WebhookClient({ request, response });
-    log && console.log('le-tabelline v' + version + ' ' + agent.locale);
+    log && console.log('le-tabelline v' + version + '-' + agent.locale);
+    log && console.log('session: ' + agent.session);
     i18n.setLanguage(agent.locale);
 
-    function dontKnow(agent) {
-        log && console.log('[dontKnow]');
-
-        let parameters = agent.getContext('data').parameters;
-        let conv = agent.conv();
-        let speech = i18n.get('ok');
-        speech += ' ' + i18n.get('multiplication');
-        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
-        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
-        speech = speech.replace('%RESULT%', parameters.operation.result.toString());
-        parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
-        parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
-        parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
-        parameters.totalQuestions++;
-        speech += ' ' + i18n.get('what_is');
-        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
-        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
-
-        agent.setContext({
-            name: 'data',
-            lifespan: 1,
-            parameters: parameters
-        });
-
-        agent.add(speech);
-    }
-
-    function fallback(agent) {
-        log && console.log('[fallback]');
-
-        let parameters = agent.getContext('data').parameters;
-        let speech = i18n.get('bye_bye');
-        let conv = agent.conv();
-        conv.close(speech);
-        const data2 = conv.serialize();
-        agent.add(new Payload(
-            'ACTIONS_ON_GOOGLE',
-            data2.payload.google));
-
-        agent.setContext({
-            name: 'data',
-            lifespan: 1,
-            parameters: parameters
-        });
-
-        agent.add(speech);
-    }
-
-    function nextQuestion(agent) {
-        log && console.log('[nextQuestion]');
-
-        let parameters = agent.getContext('data').parameters;
-        let speech = '';
-
-        if (parameters.status === Statuses.FIRST_ATTEMPT
-            || parameters.status === Statuses.SECOND_ATTEMPT)
-        {
-            speech += i18n.get('ok');
-            parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
-            parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
-            parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
-            parameters.totalQuestions++;
-            speech += ' ' + i18n.get('what_is');
-            speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
-            speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
-        } else {
-            speech += i18n.get('dont_understand');
-            speech += ' ' + i18n.get('wish_continue');
-        }
-
-        agent.setContext({
-            name: 'data',
-            lifespan: 1,
-            parameters: parameters
-        });
-
-        agent.add(speech);
-    }
-
-    function playAgain(agent) {
-        log && console.log('[playAgain]');
-
-        let parameters = agent.getContext('data').parameters;
-        let speech = '';
-        let confirmation = parameters.confirmation;
-
-        if (parameters.status !== Statuses.CONFIRM) {
-            speech += i18n.get('dont_understand') + '.';
-            speech += ' ' + i18n.get('what_is');
-            speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
-            speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
-        } else {
-            switch (confirmation) {
-                case 'sì':
-                    parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
-                    parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
-                    parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
-                    parameters.totalQuestions++;
-                    speech += i18n.get('what_is');
-                    speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
-                    speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
-                    break;
-                case 'no':
-                    speech += ' ' + i18n.get('bye_bye');
-                    let conv = agent.conv();
-                    conv.close(speech);
-                    const data2 = conv.serialize();
-                    agent.add(new Payload(
-                        'ACTIONS_ON_GOOGLE',
-                        data2.payload.google));
-                    break;
-            }
-        }
-
-        agent.setContext({
-            name: 'data',
-            lifespan: 1,
-            parameters: parameters
-        });
-
-        agent.add(speech);
-    }
-
-    function profanityWords(agent) {
-        log && console.log('[profanityWords]');
-
-        let parameters = agent.getContext('data').parameters;
-        let speech = '';
-
-        if (parameters.profanity > 0) {
-            speech += i18n.get('no_profanity');
-            speech += ' ' + i18n.get('response');
-            speech = speech.replace('%QUESTIONS%', parameters.rightResponses);
-            speech = speech.replace('%RIGHT_QUESTIONS%', parameters.totalQuestions);
-            speech += ' ' + i18n.get('bye_bye');
-            let conv = agent.conv();
-            conv.close(speech);
-            const data = conv.serialize();
-            agent.add(new Payload(
-                'ACTIONS_ON_GOOGLE',
-                data.payload.google));
-            return;
-        }
-
-        speech += i18n.get('no_profanity');
-        speech += ' ' + i18n.get('what_is');
-        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
-        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
-        parameters.profanity++;
-
-        agent.setContext({
-            name: 'data',
-            lifespan: 1,
-            parameters: parameters
-        });
-
-        agent.add(speech);
-    }
-
-    function reply(agent) {
-        log && console.log('[reply]');
+    function answer(agent) {
+        log && console.log('['+agent.intent+']');
 
         let parameters = agent.getContext('data').parameters;
         let guessedNumber = parameters.guessedNumber;
@@ -396,8 +238,137 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         agent.add(speech);
     }
 
+    function endGame(agent) {
+        log && console.log('['+agent.intent+']');
+
+        let parameters = agent.getContext('data').parameters;
+        let speech = i18n.get('bye_bye');
+        let conv = agent.conv();
+        conv.close(speech);
+        const data2 = conv.serialize();
+        agent.add(new Payload(
+            'ACTIONS_ON_GOOGLE',
+            data2.payload.google));
+
+        agent.setContext({
+            name: 'data',
+            lifespan: 1,
+            parameters: parameters
+        });
+
+        agent.add(speech);
+    }
+
+    function nextQuestion(agent) {
+        log && console.log('[nextQuestion]');
+
+        let parameters = agent.getContext('data').parameters;
+        let speech = i18n.get('ok');
+        speech += ' ' + i18n.get('multiplication');
+        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
+        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
+        speech = speech.replace('%RESULT%', parameters.operation.result.toString());
+        parameters.smartQuestion = Statuses.FIRST_ATTEMPT;
+        parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
+        parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
+        parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
+        parameters.totalQuestions++;
+        speech += ' ' + i18n.get('what_is');
+        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
+        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
+
+        agent.setContext({
+            name: 'data',
+            lifespan: 1,
+            parameters: parameters
+        });
+
+        agent.add(speech);
+    }
+
+    function playAgain(agent) {
+        log && console.log('['+agent.intent+']');
+
+        let parameters = agent.getContext('data').parameters;
+        let speech = '';
+        let confirmation = parameters.confirmation;
+
+        if (parameters.status !== Statuses.CONFIRM) {
+            speech += i18n.get('dont_understand') + '.';
+            speech += ' ' + i18n.get('what_is');
+            speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
+            speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
+        } else {
+            switch (confirmation) {
+                case 'sì':
+                    parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
+                    parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
+                    parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
+                    parameters.totalQuestions++;
+                    speech += i18n.get('what_is');
+                    speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
+                    speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
+                    break;
+                case 'no':
+                    speech += ' ' + i18n.get('bye_bye');
+                    let conv = agent.conv();
+                    conv.close(speech);
+                    const data2 = conv.serialize();
+                    agent.add(new Payload(
+                        'ACTIONS_ON_GOOGLE',
+                        data2.payload.google));
+                    break;
+            }
+        }
+
+        agent.setContext({
+            name: 'data',
+            lifespan: 1,
+            parameters: parameters
+        });
+
+        agent.add(speech);
+    }
+
+    function profanityWords(agent) {
+        log && console.log('['+agent.intent+']');
+
+        let parameters = agent.getContext('data').parameters;
+        let speech = '';
+
+        if (parameters.profanity > 0) {
+            speech += i18n.get('no_profanity');
+            speech += ' ' + i18n.get('response');
+            speech = speech.replace('%QUESTIONS%', parameters.rightResponses);
+            speech = speech.replace('%RIGHT_QUESTIONS%', parameters.totalQuestions);
+            speech += ' ' + i18n.get('bye_bye');
+            let conv = agent.conv();
+            conv.close(speech);
+            const data = conv.serialize();
+            agent.add(new Payload(
+                'ACTIONS_ON_GOOGLE',
+                data.payload.google));
+            return;
+        }
+
+        speech += i18n.get('no_profanity');
+        speech += ' ' + i18n.get('what_is');
+        speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier);
+        speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand);
+        parameters.profanity++;
+
+        agent.setContext({
+            name: 'data',
+            lifespan: 1,
+            parameters: parameters
+        });
+
+        agent.add(speech);
+    }
+
     function welcome(agent) {
-        log && console.log('[welcome]');
+        log && console.log('['+agent.intent+']');
+
         let speech = '';
         let parameters = Parameters;
 
@@ -421,12 +392,13 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     // Run the proper function handler based on the matched Dialogflow intent name
     let intentMap = new Map();
-    intentMap.set('dont_know', dontKnow);
-    intentMap.set('fallback', fallback);
+    intentMap.set('answer', answer);
+    intentMap.set('dont_know', nextQuestion);
+    intentMap.set('end_game', endGame);
+    intentMap.set('fallback', endGame);
     intentMap.set('next_question', nextQuestion);
     intentMap.set('play_again', playAgain);
     intentMap.set('profanity_words', profanityWords);
-    intentMap.set('reply', reply);
     intentMap.set('start_game', welcome);
 
     agent.handleRequest(intentMap);
