@@ -1,0 +1,198 @@
+[
+  {
+    "id": "940937d2-66e0-45df-a59f-b0f21812efd3",
+    "data": [
+      {
+        "text": "12",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 1,
+    "updated": 0
+  },
+  {
+    "id": "4ebc75a2-d805-4716-8c85-d9baf1c671d5",
+    "data": [
+      {
+        "text": "3",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "3ef1e628-6e56-4b4c-af33-f12db87e9dcb",
+    "data": [
+      {
+        "text": "45",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "e2172f93-bc20-4c0b-8442-e4edcf94cb52",
+    "data": [
+      {
+        "text": "18",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 1,
+    "updated": 0
+  },
+  {
+    "id": "8ebd525f-3ca9-4b8a-aa42-2f8d606ac7c8",
+    "data": [
+      {
+        "text": "6",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "0bb95a59-d64d-43ba-b698-61e7d9a8eab3",
+    "data": [
+      {
+        "text": "49",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "d89936c5-4d2d-47fa-b688-677fc63c7251",
+    "data": [
+      {
+        "text": "21",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "90f83266-57df-4847-acbe-037f76869c8f",
+    "data": [
+      {
+        "text": "63",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "ff5472e9-41fb-4db8-8e64-e542a09225a3",
+    "data": [
+      {
+        "text": "20",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "c73e699b-7741-45b7-8b3c-c18c577f34aa",
+    "data": [
+      {
+        "text": "35",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "f10719e0-aea2-4ada-8560-13a26ad16962",
+    "data": [
+      {
+        "text": "30",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "8df89aa9-fdd2-4811-ade8-39b45678d51a",
+    "data": [
+      {
+        "text": "51",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "b348e407-34f8-4d21-88bd-1202aebfb36c",
+    "data": [
+      {
+        "text": "54",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "bc2de96f-8186-4fbf-9021-2749a58020a4",
+    "data": [
+      {
+        "text": "1",
+        "alias": "guessedNumber",
+        "meta": "@sys.number",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  }
+]

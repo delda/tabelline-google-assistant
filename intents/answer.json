@@ -1,6 +1,6 @@
 {
   "id": "4037be82-b46b-4984-a54c-551b3d9171cb",
-  "name": "reply",
+  "name": "answer",
   "auto": true,
   "contexts": [],
   "responses": [
@@ -9,7 +9,7 @@
       "affectedContexts": [],
       "parameters": [
         {
-          "id": "53f92194-445e-4dac-9db4-9d022e1314f1",
+          "id": "6308b901-efd8-40f6-a4a3-fe4f903ef72c",
           "required": false,
           "dataType": "@sys.number",
           "name": "guessedNumber",

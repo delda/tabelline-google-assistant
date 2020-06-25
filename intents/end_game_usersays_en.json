@@ -1,10 +1,9 @@
 [
   {
-    "id": "8b733511-9573-4c95-9c76-4179ec0a3199",
+    "id": "7175ccd8-29fd-4b5f-81b8-368fb13d1f3a",
     "data": [
       {
-        "text": "zitto",
-        "meta": "@sys.ignore",
+        "text": "exit",
         "userDefined": false
       }
     ],
@@ -13,10 +12,10 @@
     "updated": 0
   },
   {
-    "id": "f58dc3ef-cbba-443a-8476-0b7e014d2b18",
+    "id": "3bbc0581-2779-4d9b-96fb-d299973f10eb",
     "data": [
       {
-        "text": "chiuditi",
+        "text": "stop playing",
         "userDefined": false
       }
     ],
@@ -25,31 +24,7 @@
     "updated": 0
   },
   {
-    "id": "3606611e-316f-44f4-a046-1f0b63f5477b",
-    "data": [
-      {
-        "text": "lascia stare",
-        "userDefined": false
-      }
-    ],
-    "isTemplate": false,
-    "count": 0,
-    "updated": 0
-  },
-  {
-    "id": "85a59034-f6ca-4eb5-bdf8-91c1c5f742d1",
-    "data": [
-      {
-        "text": "fine",
-        "userDefined": false
-      }
-    ],
-    "isTemplate": false,
-    "count": 0,
-    "updated": 0
-  },
-  {
-    "id": "9b337167-3d82-48d3-ae26-d00c8bcf388f",
+    "id": "549c04bb-d459-45c3-9173-3569b28c1caf",
     "data": [
       {
         "text": "stop",
@@ -61,11 +36,10 @@
     "updated": 0
   },
   {
-    "id": "a7a3af8e-8730-4d75-bf96-3020c3a458cb",
+    "id": "0d5271d4-e128-4dd5-98b5-9ecd379255e6",
     "data": [
       {
-        "text": "basta",
-        "meta": "@sys.ignore",
+        "text": "hidden",
         "userDefined": false
       }
     ],
@@ -74,11 +48,10 @@
     "updated": 0
   },
   {
-    "id": "4e71b35c-e57d-4107-b385-e1a335fb0419",
+    "id": "9aad04aa-4021-4afc-89e4-973abe2720f6",
     "data": [
       {
-        "text": "addio",
-        "meta": "@sys.ignore",
+        "text": "close",
         "userDefined": false
       }
     ],
@@ -87,10 +60,22 @@
     "updated": 0
   },
   {
-    "id": "a9820d4a-456e-48d3-982d-4058d64f6534",
+    "id": "c68453d4-913c-48fb-a3e9-e88148fc8ad2",
     "data": [
       {
-        "text": "ciao",
+        "text": "shut down",
+        "userDefined": false
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 0
+  },
+  {
+    "id": "0246b80b-0874-4646-8d68-2fddeb75d741",
+    "data": [
+      {
+        "text": "shut up",
         "userDefined": false
       }
     ],
