@@ -5,7 +5,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '1.06.01';
+const version = '1.07.02';
 
 const Statuses = {
     START: 0,
@@ -64,6 +64,9 @@ const context = {
         response: [
             'Hai risposto correttamente a %QUESTIONS% domande su %RIGHT_QUESTIONS%.',
         ],
+        support: [
+            'Io ti pongo delle domande sulle tabelline, e poi controllo la tua risposta. Vuoi provarci?'
+        ],
         right: [
             'Bravo!',
         ],
@@ -105,6 +108,9 @@ const context = {
         ],
         right: [
             'Good!',
+        ],
+        support: [
+            'I ask you a question, then I check if your answer is right. Do you want try?',
         ],
         try_again: [
             'No, try again',
@@ -366,6 +372,23 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         agent.add(speech);
     }
 
+    function support(agent) {
+        log && console.log('['+agent.intent+']');
+
+        let parameters = agent.getContext('data').parameters;
+        let speech = i18n.get('support');
+        parameters.status = Statuses.CONFIRM;
+        parameters.totalQuestions--;
+
+        agent.setContext({
+            name: 'data',
+            lifespan: 1,
+            parameters: parameters
+        });
+
+        agent.add(speech);
+    }
+
     function welcome(agent) {
         log && console.log('['+agent.intent+']');
 
@@ -400,6 +423,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     intentMap.set('play_again', playAgain);
     intentMap.set('profanity_words', profanityWords);
     intentMap.set('start_game', welcome);
+    intentMap.set('support', support);
 
     agent.handleRequest(intentMap);
 });
