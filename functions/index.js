@@ -20,7 +20,7 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 const log = true;
-const version = '1.07.02';
+const version = '1.07.16';
 
 const Statuses = {
     START: 0,
@@ -39,12 +39,13 @@ const Parameters = {
     operation: null,
     smartQuestion: 'down',
     multiplications: Array.from({ length:10 }, () => (Array.from({ length:10 }, () => null))),
-    firstAttempt: true,
     totalQuestions: 0,
     rightResponses: 0,
     limitQuestions: 5,
+    maxQuestions: 50,
     status: Statuses.START,
     profanity: 0,
+    lastMultiplication: Multiplication,
 };
 
 const context = {
@@ -159,6 +160,7 @@ process.env.DEBUG = 'dialogflow:debug';
 
 function addMultiplicationTable(operation, multiplications) {
     multiplications[operation.multiplier-1][operation.multiplicand-1] = operation.result;
+    multiplications[operation.multiplicand-1][operation.multiplier-1] = operation.result;
 
     return multiplications;
 }
@@ -167,8 +169,20 @@ function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function isSimilarMultiplication(currentMultiplication, lastMultiplication) {
+    if (currentMultiplication.multiplicand === lastMultiplication.multiplicand
+        || currentMultiplication.multiplicand === lastMultiplication.multiplier
+        || currentMultiplication.multiplier === lastMultiplication.multiplicand
+        || currentMultiplication.multiplier === lastMultiplication.multiplier
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
 function randomMultiplication(smartQuestion = 'down') {
-    let mult = Multiplication;
+    let mult = Object.assign({}, Multiplication);
     mult.multiplier = getRandomNumber(1, 10);
     if (smartQuestion === 'down') {
         mult.multiplicand = getRandomNumber(0, 4);
@@ -180,11 +194,17 @@ function randomMultiplication(smartQuestion = 'down') {
     return mult;
 }
 
-function smartMultiplication(smartQuestion = 'down', multiplications) {
+function smartMultiplication(parameters) {
+    let smartQuestion = parameters.smartQuestion;
+    let multiplications = parameters.multiplications;
+    let lastMultiplication = parameters.lastMultiplication;
     let result;
     do {
         result = randomMultiplication(smartQuestion);
-    } while (multiplications[result.multiplier-1][result.multiplicand-1] !== null);
+    } while (
+        isSimilarMultiplication(result, lastMultiplication) ||
+        multiplications[result.multiplier-1][result.multiplicand-1] !== null);
+    parameters.lastMultiplication = result;
 
     return result;
 }
@@ -236,11 +256,21 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
                     }
                     speech = speech.replace('%QUESTIONS%', parameters.rightResponses);
                     speech = speech.replace('%RIGHT_QUESTIONS%', parameters.totalQuestions);
-                    speech += ' ' + i18n.get('wish_continue');
+                    if (parameters.totalQuestions >= parameters.maxQuestions) {
+                        speech += ' ' + i18n.get('bye_bye');
+                        let conv = agent.conv();
+                        conv.close(speech);
+                        const data2 = conv.serialize();
+                        agent.add(new Payload(
+                            'ACTIONS_ON_GOOGLE',
+                            data2.payload.google));
+                    } else {
+                        speech += ' ' + i18n.get('wish_continue');
+                    }
                     parameters.status = Statuses.CONFIRM;
                 } else {
                     parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
-                    parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
+                    parameters.operation = smartMultiplication(parameters);
                     parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
                     parameters.totalQuestions++;
                     speech += ' ' + i18n.get('what_is');
@@ -291,7 +321,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         speech = speech.replace('%RESULT%', parameters.operation.result.toString());
         parameters.smartQuestion = Statuses.FIRST_ATTEMPT;
         parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
-        parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
+        parameters.operation = smartMultiplication(parameters);
         parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
         parameters.totalQuestions++;
         speech += ' ' + i18n.get('what_is');
@@ -323,7 +353,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
             switch (confirmation) {
                 case 'sì':
                     parameters.smartQuestion = parameters.smartQuestion === 'up' ? 'down' : 'up';
-                    parameters.operation = smartMultiplication(parameters.smartQuestion, parameters.multiplications);
+                    parameters.operation = smartMultiplication(parameters);
                     parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
                     parameters.totalQuestions++;
                     speech += i18n.get('what_is');
@@ -408,15 +438,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
         log && console.log('['+agent.intent+']');
 
         let speech = '';
-        let parameters = Parameters;
-
-        parameters.operation = smartMultiplication('down', parameters.multiplications);
+        let parameters = Object.assign({}, Parameters);
+        parameters.smartQuestion = 'down';
+        parameters.operation = smartMultiplication(parameters);
+        parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
         parameters.totalQuestions++;
         speech += i18n.get('welcome');
         speech += ' ' + i18n.get('what_is');
         speech = speech.replace('%MULTIPLIER%', parameters.operation.multiplier.toString());
         speech = speech.replace('%MULTIPLICAND%', parameters.operation.multiplicand.toString());
-        parameters.multiplications = addMultiplicationTable(parameters.operation, parameters.multiplications);
         parameters.status = Statuses.FIRST_ATTEMPT;
 
         agent.setContext({
